@@ -1,0 +1,37 @@
+{
+    "name": "uts-pbo/mbg-game",
+    "description": "Mobile Battle Government (MBG) - 2D Fighting Game implementing Object-Oriented Programming in PHP 8.2+",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Muhamad Mulqi Adiyat Abdilah Ruswandi",
+            "role": "Ketua Kelompok (2530521082)"
+        },
+        {
+            "name": "Akazasa Sitanala",
+            "role": "Anggota (2530521088)"
+        },
+        {
+            "name": "Ahmi Sulaeman",
+            "role": "Anggota (2530521083)"
+        },
+        {
+            "name": "Muhammad Kirei Abdillah",
+            "role": "Anggota (2530521075)"
+        },
+        {
+            "name": "Mochammad Fauzan Dzakwan Rahadian",
+            "role": "Anggota (2530521074)"
+        }
+    ],
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "MBG\\": "app/"
+        }
+    }
+}
+

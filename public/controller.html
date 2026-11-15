@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MBG - Wireless Android Gamepad Controller</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📱</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #080a10;
+            --p1-neon: #00f0ff;
+            --p2-neon: #ff0055;
+            --gold: #ffd700;
+            --green: #00ff88;
+            --active-neon: var(--p1-neon);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: #ffffff;
+            font-family: 'Rajdhani', sans-serif;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background-image: radial-gradient(circle at center, #101524 0%, #06080e 100%);
+        }
+
+        /* Top Status Header */
+        .controller-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 6px;
+            flex-shrink: 0;
+        }
+
+        .player-badge {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.85rem;
+            padding: 5px 12px;
+            border-radius: 6px;
+            background: rgba(0, 240, 255, 0.15);
+            border: 2px solid var(--active-neon);
+            color: var(--active-neon);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            cursor: pointer;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #aaa;
+        }
+
+        .status-badge.connected {
+            border-color: var(--green);
+            color: var(--green);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff3333;
+        }
+
+        .status-badge.connected .status-dot {
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-tool {
+            background: #141a29;
+            border: 1px solid #2a3754;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-tool:active {
+            background: var(--active-neon);
+            color: #000;
+        }
+
+        /* Center Gamepad Area */
+        .gamepad-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex: 1;
+            padding: 10px 0;
+            position: relative;
+        }
+
+        /* Left Side: Virtual D-Pad */
+        .dpad-cluster {
+            position: relative;
+            width: 170px;
+            height: 170px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 4px;
+        }
+
+        .dpad-btn {
+            background: linear-gradient(145deg, #182238, #0e1424);
+            border: 2px solid #2f4066;
+            color: var(--active-neon);
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+            transition: all 0.08s ease;
+        }
+
+        .dpad-btn:active, .dpad-btn.pressed {
+            background: var(--active-neon);
+            color: #000;
+            border-color: #ffffff;
+            box-shadow: 0 0 18px var(--active-neon);
+            transform: scale(0.94);
+        }
+
+        .dpad-center {
+            background: #080c14;
+            border: 1px dashed #202b44;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            color: #556688;
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        /* Center Utility Controls */
+        .center-cluster {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-pause-circle {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #151b2a;
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 900;
+        }
+
+        .btn-pause-circle:active {
+            background: #ffd700;
+            color: #000;
+            transform: scale(0.92);
+        }
+
+        .game-title-watermark {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.55rem;
+            color: rgba(255, 255, 255, 0.25);
+            text-align: center;
+            letter-spacing: 1px;
+            line-height: 1.4;
+        }
+
+        /* Right Side: Action Buttons */
+        .action-cluster {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .btn-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid #3d4f7c;
+            background: linear-gradient(145deg, #1e263d, #111728);
+            color: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+            transition: all 0.08s ease;
+            position: relative;
+        }
+
+        .btn-action .btn-label {
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-action .btn-sub {
+            font-size: 0.62rem;
+            color: var(--active-neon);
+            font-family: 'Press Start 2P', monospace;
+            margin-top: 2px;
+        }
+
+        .btn-action:active, .btn-action.pressed {
+            transform: scale(0.92);
+        }
+
+        .btn-action.attack-btn:active, .btn-action.attack-btn.pressed {
+            background: var(--active-neon);
+            color: #000;
+            box-shadow: 0 0 20px var(--active-neon);
+        }
+
+        .btn-action.skill1-btn:active, .btn-action.skill1-btn.pressed {
+            background: var(--green);
+            border-color: #fff;
+            color: #000;
+            box-shadow: 0 0 20px var(--green);
+        }
+
+        .btn-action.skill2-btn:active, .btn-action.skill2-btn.pressed {
+            background: var(--gold);
+            border-color: #fff;
+            color: #000;
+            box-shadow: 0 0 20px var(--gold);
+        }
+
+        /* Large Prominent Ultimate Button */
+        .btn-action.ulti-btn {
+            border-color: #ff0055;
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.35);
+        }
+
+        .btn-action.ulti-btn .btn-sub {
+            color: #ff0055;
+        }
+
+        .btn-action.ulti-btn:active, .btn-action.ulti-btn.pressed {
+            background: linear-gradient(135deg, #ff0055, #ffd700);
+            border-color: #ffffff;
+            color: #000;
+            box-shadow: 0 0 25px #ff0055;
+        }
+
+        /* Bottom Feedback Bar */
+        .controller-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #7b8ea8;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 5px;
+            flex-shrink: 0;
+        }
+
+        .latency-text {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        /* P2 Red Theme Override */
+        body.theme-p2 {
+            --active-neon: var(--p2-neon);
+        }
+        body.theme-p2 .player-badge {
+            background: rgba(255, 0, 85, 0.15);
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
+        }
+
+        /* Modal Settings & Reconnect */
+        .overlay-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(5, 8, 14, 0.95);
+            z-index: 999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .overlay-modal.active {
+            display: flex;
+        }
+
+        .settings-card {
+            background: #131826;
+            border: 2px solid var(--active-neon);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
+        }
+
+        .settings-card h3 {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.9rem;
+            color: var(--gold);
+            margin-bottom: 15px;
+        }
+
+        .input-row {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .input-row label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #aaa;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .input-text {
+            width: 100%;
+            padding: 8px 12px;
+            background: #090c14;
+            border: 1px solid #2e3a54;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .btn-confirm {
+            width: 100%;
+            background: var(--active-neon);
+            color: #000;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 900;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body id="controller-body">
+
+    <!-- Top Header -->
+    <header class="controller-header">
+        <div class="player-badge" id="player-badge" onclick="togglePlayer()">
+            <span id="player-icon">🎮</span>
+            <span id="player-label">PLAYER 1 (BIRU)</span>
+        </div>
+
+        <div class="status-badge" id="status-badge">
+            <div class="status-dot"></div>
+            <span id="status-text">MENGHUBUNGKAN...</span>
+        </div>
+
+        <div class="header-actions">
+            <button class="btn-tool" onclick="toggleFullscreen()" title="Layar Penuh (Fullscreen)">⛶ FULL</button>
+            <button class="btn-tool" onclick="openSettings()" title="Pengaturan Server Host">⚙ IP</button>
+        </div>
+    </header>
+
+    <!-- Gamepad Surface -->
+    <main class="gamepad-container">
+
+        <!-- D-PAD CLUSTER -->
+        <div class="dpad-cluster">
+            <div></div>
+            <button class="dpad-btn" id="dpad-up" data-dir="up">▲</button>
+            <div></div>
+
+            <button class="dpad-btn" id="dpad-left" data-dir="left">◀</button>
+            <div class="dpad-center">MBG</div>
+            <button class="dpad-btn" id="dpad-right" data-dir="right">▶</button>
+
+            <div></div>
+            <button class="dpad-btn" id="dpad-down" data-dir="down">▼</button>
+            <div></div>
+        </div>
+
+        <!-- CENTER CONTROLS -->
+        <div class="center-cluster">
+            <button class="btn-pause-circle" id="btn-pause" onclick="sendAction('pause')">⏸</button>
+            <div class="game-title-watermark">
+                MOBILE BATTLE<br>GOVERNMENT
+            </div>
+        </div>
+
+        <!-- ACTION BUTTONS CLUSTER -->
+        <div class="action-cluster">
+            <button class="btn-action attack-btn" id="btn-atk" data-action="attack">
+                <span class="btn-label">PUKUL</span>
+                <span class="btn-sub">[J / 1]</span>
+            </button>
+
+            <button class="btn-action skill1-btn" id="btn-s1" data-action="special_1">
+                <span class="btn-label">SKILL 1</span>
+                <span class="btn-sub">[K / 2]</span>
+            </button>
+
+            <button class="btn-action skill2-btn" id="btn-s2" data-action="special_2">
+                <span class="btn-label">SKILL 2</span>
+                <span class="btn-sub">[L / 3]</span>
+            </button>
+
+            <button class="btn-action ulti-btn" id="btn-ulti" data-action="ultimate">
+                <span class="btn-label">★ ULTI</span>
+                <span class="btn-sub">[U / 0]</span>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Bottom Footer -->
+    <footer class="controller-footer">
+        <div>Wireless Realtime Socket (<span id="latency-val" class="latency-text">0 ms</span>)</div>
+        <div id="haptic-status" onclick="toggleHaptic()" style="cursor: pointer;">📳 GETAR: ON</div>
+    </footer>
+
+    <!-- Settings Modal -->
+    <div class="overlay-modal" id="modal-settings">
+        <div class="settings-card">
+            <h3>PENGATURAN KONEKSI</h3>
+            <div class="input-row">
+                <label>Alamat IP Server Host (Komputer Laptop):</label>
+                <input type="text" class="input-text" id="input-host-ip" placeholder="Contoh: 192.168.1.10">
+            </div>
+            <div class="input-row">
+                <label>Port WebSocket:</label>
+                <input type="number" class="input-text" id="input-ws-port" value="8088">
+            </div>
+            <button class="btn-confirm" onclick="saveSettings()">SIMPAN & SAMBUNGKAN</button>
+            <button class="btn-tool" style="width: 100%; margin-top: 8px;" onclick="closeSettings()">TUTUP</button>
+        </div>
+    </div>
+
+    <!-- Controller Logic Script -->
+    <script>
+        // -------------------------------------------------------------
+        // STATE & CONFIGURATION
+        // -------------------------------------------------------------
+        const urlParams = new URLSearchParams(window.location.search);
+        let player = (urlParams.get('p') === '2' || urlParams.get('player') === '2') ? 'p2' : 'p1';
+        
+        let hostIp = window.location.hostname || 'localhost';
+        if (hostIp === '127.0.0.1') hostIp = 'localhost';
+        
+        let wsPort = 8088;
+        let ws = null;
+        let isConnected = false;
+        let hapticEnabled = true;
+        let pingInterval = null;
+
+        // Apply Player Theme
+        function updatePlayerTheme() {
+            const body = document.getElementById('controller-body');
+            const label = document.getElementById('player-label');
+            const subAtk = document.querySelector('#btn-atk .btn-sub');
+            const subS1 = document.querySelector('#btn-s1 .btn-sub');
+            const subS2 = document.querySelector('#btn-s2 .btn-sub');
+            const subUlti = document.querySelector('#btn-ulti .btn-sub');
+
+            if (player === 'p1') {
+                body.className = '';
+                label.innerText = 'PLAYER 1 (BIRU)';
+                if (subAtk) subAtk.innerText = '[J]';
+                if (subS1) subS1.innerText = '[K]';
+                if (subS2) subS2.innerText = '[L]';
+                if (subUlti) subUlti.innerText = '[U]';
+            } else {
+                body.className = 'theme-p2';
+                label.innerText = 'PLAYER 2 (MERAH)';
+                if (subAtk) subAtk.innerText = '[Numpad 1]';
+                if (subS1) subS1.innerText = '[Numpad 2]';
+                if (subS2) subS2.innerText = '[Numpad 3]';
+                if (subUlti) subUlti.innerText = '[Numpad 0]';
+            }
+        }
+
+        function togglePlayer() {
+            player = (player === 'p1') ? 'p2' : 'p1';
+            updatePlayerTheme();
+            vibrate(35);
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'register', role: 'controller', player: player }));
+            }
+        }
+
+        // -------------------------------------------------------------
+        // HAPTIC FEEDBACK (VIBRATION API)
+        // -------------------------------------------------------------
+        function vibrate(pattern) {
+            if (hapticEnabled && 'vibrate' in navigator) {
+                try {
+                    navigator.vibrate(pattern);
+                } catch (e) {}
+            }
+        }
+
+        function toggleHaptic() {
+            hapticEnabled = !hapticEnabled;
+            document.getElementById('haptic-status').innerText = hapticEnabled ? '📳 GETAR: ON' : '🔕 GETAR: OFF';
+            if (hapticEnabled) vibrate(50);
+        }
+
+        // -------------------------------------------------------------
+        // WEBSOCKET CLIENT CONNECTION
+        // -------------------------------------------------------------
+        function connectWebSocket() {
+            const statusBadge = document.getElementById('status-badge');
+            const statusText = document.getElementById('status-text');
+
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${hostIp}:${wsPort}`;
+
+            statusText.innerText = 'MENYAMBUNGKAN...';
+            statusBadge.classList.remove('connected');
+
+            try {
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = () => {
+                    isConnected = true;
+                    statusBadge.classList.add('connected');
+                    statusText.innerText = 'TERHUBUNG (ONLINE)';
+                    vibrate([30, 40, 30]);
+
+                    // Register this phone as a controller for selected player
+                    ws.send(JSON.stringify({
+                        type: 'register',
+                        role: 'controller',
+                        player: player
+                    }));
+
+                    // Heartbeat ping
+                    if (pingInterval) clearInterval(pingInterval);
+                    pingInterval = setInterval(() => {
+                        if (ws && ws.readyState === WebSocket.OPEN) {
+                            const start = Date.now();
+                            ws.send(JSON.stringify({ type: 'ping', t: start }));
+                        }
+                    }, 3000);
+                };
+
+                ws.onmessage = (event) => {
+                    try {
+                        const msg = JSON.parse(event.data);
+                        if (msg.type === 'vibrate' || msg.type === 'haptic') {
+                            vibrate(msg.duration || 100);
+                        } else if (msg.type === 'ping') {
+                            const now = Date.now();
+                            const rtt = Math.max(1, now - (msg.t || now));
+                            const latElem = document.getElementById('latency-val');
+                            if (latElem) latElem.innerText = `${rtt} ms`;
+                        }
+                    } catch (e) {}
+                };
+
+                ws.onclose = () => {
+                    isConnected = false;
+                    statusBadge.classList.remove('connected');
+                    statusText.innerText = 'TERPUTUS';
+                    if (pingInterval) clearInterval(pingInterval);
+                    setTimeout(connectWebSocket, 2000); // Auto reconnect
+                };
+
+                ws.onerror = () => {
+                    ws.close();
+                };
+            } catch (err) {
+                console.warn("WebSocket error:", err);
+                statusText.innerText = 'GAGAL HUBUNG';
+                setTimeout(connectWebSocket, 3000);
+            }
+        }
+
+        // -------------------------------------------------------------
+        // SENDING CONTROLLER INPUTS TO GAME HOST
+        // -------------------------------------------------------------
+        function sendMove(dir, pressed) {
+            vibrate(pressed ? 20 : 0);
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'move',
+                    player: player,
+                    dir: dir,
+                    pressed: pressed
+                }));
+            }
+        }
+
+        function sendAction(action) {
+            vibrate(action === 'ultimate' ? [40, 40, 60] : 30);
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'action',
+                    player: player,
+                    action: action
+                }));
+            }
+        }
+
+        // -------------------------------------------------------------
+        // POINTER / TOUCH EVENT LISTENERS (ZERO GHOST CLICK LATENCY)
+        // -------------------------------------------------------------
+        function setupEventListeners() {
+            // D-Pad buttons
+            document.querySelectorAll('.dpad-btn').forEach(btn => {
+                const dir = btn.getAttribute('data-dir');
+                let isPressed = false;
+                
+                const startPress = (e) => {
+                    e.preventDefault();
+                    if (isPressed) return;
+                    isPressed = true;
+                    btn.classList.add('pressed');
+                    try {
+                        if (e.pointerId !== undefined && btn.setPointerCapture) {
+                            btn.setPointerCapture(e.pointerId);
+                        }
+                    } catch (_) {}
+                    sendMove(dir, true);
+                };
+
+                const endPress = (e) => {
+                    e.preventDefault();
+                    if (!isPressed) return;
+                    isPressed = false;
+                    btn.classList.remove('pressed');
+                    try {
+                        if (e.pointerId !== undefined && btn.releasePointerCapture) {
+                            btn.releasePointerCapture(e.pointerId);
+                        }
+                    } catch (_) {}
+                    sendMove(dir, false);
+                };
+
+                btn.addEventListener('pointerdown', startPress);
+                btn.addEventListener('pointerup', endPress);
+                btn.addEventListener('pointercancel', endPress);
+            });
+
+            // Action buttons
+            document.querySelectorAll('.btn-action').forEach(btn => {
+                const action = btn.getAttribute('data-action');
+                let isPressed = false;
+
+                const startPress = (e) => {
+                    e.preventDefault();
+                    if (isPressed) return;
+                    isPressed = true;
+                    btn.classList.add('pressed');
+                    try {
+                        if (e.pointerId !== undefined && btn.setPointerCapture) {
+                            btn.setPointerCapture(e.pointerId);
+                        }
+                    } catch (_) {}
+                    sendAction(action);
+                };
+
+                const endPress = (e) => {
+                    e.preventDefault();
+                    if (!isPressed) return;
+                    isPressed = false;
+                    btn.classList.remove('pressed');
+                    try {
+                        if (e.pointerId !== undefined && btn.releasePointerCapture) {
+                            btn.releasePointerCapture(e.pointerId);
+                        }
+                    } catch (_) {}
+                };
+
+                btn.addEventListener('pointerdown', startPress);
+                btn.addEventListener('pointerup', endPress);
+                btn.addEventListener('pointercancel', endPress);
+            });
+        }
+
+        // -------------------------------------------------------------
+        // SETTINGS & FULLSCREEN
+        // -------------------------------------------------------------
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
+
+        function openSettings() {
+            document.getElementById('input-host-ip').value = hostIp;
+            document.getElementById('input-ws-port').value = wsPort;
+            document.getElementById('modal-settings').classList.add('active');
+        }
+
+        function closeSettings() {
+            document.getElementById('modal-settings').classList.remove('active');
+        }
+
+        function saveSettings() {
+            const ipInput = document.getElementById('input-host-ip').value.trim();
+            const portInput = parseInt(document.getElementById('input-ws-port').value);
+            if (ipInput) hostIp = ipInput;
+            if (portInput) wsPort = portInput;
+            closeSettings();
+            if (ws) ws.close();
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            updatePlayerTheme();
+            setupEventListeners();
+            connectWebSocket();
+        });
+    </script>
+</body>
+</html>
+

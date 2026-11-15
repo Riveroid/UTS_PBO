@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>MBG - OOP Specs View</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background:#0a0b10;">
+    <div id="game-container">
+        <div class="modal-overlay active" id="modal-oop" style="position:relative; width:100%; height:auto; background:none;">
+            <div class="modal-content" style="width:100%; max-width:880px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">ARSITEKTUR PEMROGRAMAN BERORIENTASI OBJEK</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Game <strong>MBG</strong> dibangun dengan mengimplementasikan prinsip-prinsip fundamental OOP PHP 8.3:</p>
+
+                    <h3>1. Abstraksi (Abstraction)</h3>
+                    <p>Mendefinisikan <code>abstract class Fighter</code> sebagai fondasi generik seluruh petarung dengan 15 atribut terlindungi dan method abstrak wajib <code>activatePassive()</code> serta <code>getSpecialAbilityDescription()</code>.</p>
+
+                    <h3>2. Enkapsulasi (Encapsulation)</h3>
+                    <p>Seluruh properti bernilai sensitif dideklarasikan sebagai <code>protected</code> atau <code>private</code>. Akses dimediasi melalui <em>getter</em> dan <em>setter</em> dengan validasi batas batas matematis (misalnya HP tidak pernah negatif dan tidak melebihi MaxHealth, energi dibatasi 0-100%).</p>
+
+                    <h3>3. Pewarisan (Inheritance)</h3>
+                    <p>Sebanyak 5 child class mewarisi fungsionalitas <code>Fighter</code>:</p>
+                    <ul>
+                        <li><code>Bahlul extends Fighter</code>: The Goblin Summoner (Atribut: activeGoblins, etanolWaveCharge, crowdControlActive, summonerChant, totalSummonsCount).</li>
+                        <li><code>Tifuzia extends Fighter</code>: The Diploma Inspector (Atribut: inspectionRounds, diplomaVerified, noiseDecibel, academicShield, controversyStreak).</li>
+                        <li><code>BrownTeddy extends Fighter</code>: The Affection Attacker (Atribut: affectionMeter, hugsCount, fluffinessArmor, kissMultiplier, cutenessOverload).</li>
+                        <li><code>Fufufifi extends Fighter</code>: The Government Critic (Atribut: critiqueStacks, protestSupportLevel, argumentIntensity, megaphonePower, publicRallyActive).</li>
+                        <li><code>WiliWonka extends Fighter</code>: The Viral Opportunist (Atribut: trendingRank, chocolateSupply, viralViewers, fypBonusActive, stagePresence).</li>
+                    </ul>
+
+                    <h3>4. Polimorfisme (Polymorphism)</h3>
+                    <p>Setiap child class meng-override method <code>attack()</code> untuk menyematkan efek pasif unik masing-masing. Objek dieksekusi secara polimorfis melalui abstraksi <code>FighterInterface</code> pada <code>BattleEngine</code> tanpa mengetahui tipe spesifik kelas anak saat kompilasi.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

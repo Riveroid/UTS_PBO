@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBG: MOBILE BATTLE GOVERNMENT - Arcade Fighting Game (UTS PBO)</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔️</text></svg>">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Mobile Portrait Orientation Prompt Overlay -->
+    <div class="orientation-overlay" id="orientation-overlay">
+        <div class="orientation-box">
+            <div class="phone-rotate-icon">📱 ↷</div>
+            <h3 class="orientation-title">SILAKAN MIRINGKAN LAYAR ANDA</h3>
+            <p class="orientation-desc">Untuk pengalaman bermain <strong>Arcade Fighting 60 FPS</strong> yang maksimal, silakan putar smartphone Anda ke mode <strong>Landscape (Miring)</strong>.</p>
+            <button class="btn-arcade-mini" onclick="document.getElementById('orientation-overlay').classList.add('dismissed')">Lanjutkan di Mode Vertikal</button>
+        </div>
+    </div>
+
+    <!-- CRT Scanlines Overlay Filter -->
+    <div class="scanlines" id="scanlines"></div>
+
+    <!-- Main Arcade Cabinet Frame -->
+    <div id="game-container">
+
+        <!-- Arcade Top Header Bar -->
+        <header class="arcade-header">
+            <div>
+                <div class="arcade-title">
+                    <span>⚔️ MBG: MOBILE BATTLE GOVERNMENT</span>
+                </div>
+                <div class="arcade-subtitle">
+                    UTS PBO | Teknik Informatika - Universitas Muhammadiyah Sukabumi
+                </div>
+            </div>
+            <div class="header-controls">
+                <button class="btn-arcade-mini" id="btn-crt">CRT: ON</button>
+                <button class="btn-arcade-mini" id="btn-audio">MUTE: OFF</button>
+                <button class="btn-arcade-mini" id="btn-header-qr" onclick="game.openQrModal()" title="Hubungkan Smartphone Android via QR Code" style="border-color: var(--neon-blue); color: var(--neon-blue);">📱 CONTROLLER [QR]</button>
+                <button class="btn-arcade-mini" id="btn-header-diff" onclick="game.cycleDifficulty()" title="Ganti Kesulitan AI (Easy, Normal, Hard)">AI: NORMAL</button>
+                <button class="btn-arcade-mini" id="btn-header-pause" onclick="game.togglePause()" title="Pause / Lanjutkan Pertarungan (Esc / P)">⏸ PAUSE</button>
+                <button class="btn-arcade-mini" onclick="game.openModal('modal-controls')">KONTROL [?]</button>
+                <button class="btn-arcade-mini" onclick="game.openModal('modal-oop')">OOP SPECS [i]</button>
+            </div>
+        </header>
+
+        <!-- SCREEN 1: TITLE SCREEN -->
+        <section class="screen active" id="screen-title">
+            <div class="title-logo-box">
+                <h1 class="title-logo">MOBILE BATTLE<br>GOVERNMENT</h1>
+                <div class="title-badge">RETRO 2D ARCADE FIGHTING ENGINE (PHP 8.3 OOP)</div>
+            </div>
+
+            <div class="title-menu">
+                <button class="btn-arcade primary" onclick="game.startSelect('pvai')">▶ 1P VS CPU (ARCADE)</button>
+                <button class="btn-arcade" onclick="game.startSelect('pvp')">⚔ 1P VS 2P (LOCAL PVP)</button>
+                <button class="btn-arcade" onclick="game.startSelect('training')">🥋 TRAINING DOJO</button>
+                <button class="btn-arcade" onclick="game.openQrModal()" style="border-color: var(--neon-gold); color: var(--neon-gold);">📱 KONTROLER ANDROID [QR]</button>
+                <button class="btn-arcade" onclick="game.openModal('modal-controls')">🎮 CARA BERMAIN</button>
+                <button class="btn-arcade" onclick="game.openModal('modal-oop')">🏛 ARSITEKTUR OOP</button>
+            </div>
+
+            <div class="title-credits">
+                <strong>Disusun oleh Kelompok 1:</strong><br>
+                Muhamad Mulqi Adiyat Abdilah Ruswandi (2530521082) - Ketua<br>
+                Akazasa Sitanala (2530521088) | Ahmi Sulaeman (2530521083)<br>
+                Muhammad Kirei Abdillah (2530521075) | Mochammad Fauzan Dzakwan Rahadian (2530521074)<br>
+                <small style="color: #64748b;">Dosen Pengampu: Prajoko, M.Kom. | TA 2026/2027</small>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: CHARACTER SELECT SCREEN -->
+        <section class="screen" id="screen-char-select">
+            <h2 class="select-header">CHOOSE YOUR FIGHTER</h2>
+
+            <!-- Character Roster Grid -->
+            <div class="char-grid" id="char-grid">
+                <!-- Dynamically populated from api/characters.php -->
+            </div>
+
+            <!-- Character Detail & Stats Preview -->
+            <div class="char-preview-details">
+                <div class="preview-col">
+                    <h4 id="preview-p1-name">Karakter Terpilih</h4>
+                    <div class="stat-bars">
+                        <div class="stat-row">
+                            <span>Health (HP):</span>
+                            <div class="stat-bar-outer"><div class="stat-bar-inner bar-hp" id="p1-bar-hp" style="width: 80%;"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <span>Attack (ATK):</span>
+                            <div class="stat-bar-outer"><div class="stat-bar-inner bar-atk" id="p1-bar-atk" style="width: 85%;"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <span>Defense (DEF):</span>
+                            <div class="stat-bar-outer"><div class="stat-bar-inner bar-def" id="p1-bar-def" style="width: 60%;"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <span>Speed (SPD):</span>
+                            <div class="stat-bar-outer"><div class="stat-bar-inner bar-spd" id="p1-bar-spd" style="width: 50%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="preview-col">
+                    <h4>Jurus & Kemampuan Pasif</h4>
+                    <div class="preview-skills" id="preview-p1-skills">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Arena & Difficulty Selection -->
+            <div class="selection-options-grid">
+                <div class="arena-select-box">
+                    <div>
+                        <strong>Pilih Arena Pertarungan:</strong>
+                    </div>
+                    <div>
+                        <select id="select-arena" style="background: #101624; color: #fff; padding: 6px 12px; border: 1px solid #3d4f7c; border-radius: 4px; font-weight: bold; width: 100%;">
+                            <option value="ruang_sidang">🏛 Ruang Sidang Paripurna (DPR)</option>
+                            <option value="bundaran_demokrasi">🗽 Bundaran Demokrasi</option>
+                            <option value="studio_viral">📺 Studio Panggung Viral</option>
+                            <option value="lembah_etanol">🧪 Lembah Etanol Hijau</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="difficulty-select-box" id="diff-box">
+                    <div class="diff-header-row">
+                        <strong>KESULITAN AI:</strong>
+                        <span id="diff-active-label" class="diff-active-badge badge-normal">🟡 NORMAL</span>
+                    </div>
+                    <div class="diff-buttons">
+                        <button type="button" class="btn-diff-card" id="btn-diff-easy" onclick="game.setDifficulty('easy')">
+                            <span class="diff-title">🟢 EASY</span>
+                            <span class="diff-sub">Pemula</span>
+                        </button>
+                        <button type="button" class="btn-diff-card active" id="btn-diff-normal" onclick="game.setDifficulty('normal')">
+                            <span class="diff-title">🟡 NORMAL</span>
+                            <span class="diff-sub">Standar</span>
+                        </button>
+                        <button type="button" class="btn-diff-card" id="btn-diff-hard" onclick="game.setDifficulty('hard')">
+                            <span class="diff-title">🔴 HARD</span>
+                            <span class="diff-sub">Pakar / Brutal</span>
+                        </button>
+                    </div>
+                    <div class="diff-desc" id="diff-desc-text">
+                        AI Standar: Respon taktis seimbang, gerakan reguler, jurus wajar.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="select-footer-actions">
+                <button class="btn-arcade" onclick="game.showScreen('screen-title')">← KEMBALI KE MENU</button>
+                <button class="btn-arcade primary" onclick="game.startBattle()">MULAI PERTARUNGAN ⚔</button>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: BATTLE ARENA SCREEN -->
+        <section class="screen" id="screen-battle">
+            <!-- HUD -->
+            <div class="battle-hud">
+                <!-- P1 HUD -->
+                <div class="hud-player p1">
+                    <div class="hud-player-info">
+                        <span class="hud-pbadge" style="background: var(--neon-blue); color: #000;">P1</span>
+                        <span class="hud-pname" id="hud-p1-name">Bahlul</span>
+                    </div>
+                    <div class="hud-bar-container">
+                        <div class="health-bar-outer">
+                            <div class="health-bar-red" id="hud-p1-hp-red"></div>
+                            <div class="health-bar-fill" id="hud-p1-hp-fill"></div>
+                            <div class="health-bar-text" id="hud-p1-hp-text">1150 / 1150</div>
+                        </div>
+                        <div class="energy-bar-outer">
+                            <div class="energy-bar-fill" id="hud-p1-energy-fill"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center Timer & Round -->
+                <div class="hud-center">
+                    <div class="hud-timer" id="hud-timer">99</div>
+                    <div class="hud-round">ROUND 1</div>
+                </div>
+
+                <!-- P2 HUD -->
+                <div class="hud-player p2">
+                    <div class="hud-player-info">
+                        <span class="hud-pbadge" style="background: var(--neon-red); color: #fff;">CPU/P2</span>
+                        <span class="hud-pname" id="hud-p2-name">Tifuzia</span>
+                    </div>
+                    <div class="hud-bar-container">
+                        <div class="health-bar-outer">
+                            <div class="health-bar-red" id="hud-p2-hp-red"></div>
+                            <div class="health-bar-fill" id="hud-p2-hp-fill"></div>
+                            <div class="health-bar-text" id="hud-p2-hp-text">980 / 980</div>
+                        </div>
+                        <div class="energy-bar-outer">
+                            <div class="energy-bar-fill" id="hud-p2-energy-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Interactive Canvas -->
+            <canvas id="battleCanvas" width="948" height="420"></canvas>
+
+            <!-- Bottom Controls & Combat Log -->
+            <div class="battle-bottom">
+                <div class="action-bar">
+                    <!-- Virtual D-Pad Movement Controller -->
+                    <div class="dpad-box">
+                        <button class="btn-dpad" id="btn-move-left" title="Mundur (A / ←)">◀</button>
+                        <div class="dpad-vert">
+                            <button class="btn-dpad" id="btn-move-jump" title="Lompat (W / ↑ / Spasi)">▲</button>
+                            <button class="btn-dpad" id="btn-move-crouch" title="Sneak / Jongkok (S / ↓)">▼</button>
+                        </div>
+                        <button class="btn-dpad" id="btn-move-right" title="Maju (D / →)">▶</button>
+                    </div>
+
+                    <button class="btn-skill" id="btn-attack" onclick="game.executeMove('p1', 'attack')">
+                        <span>Pukul / Serang</span>
+                        <span class="key-hint">J</span>
+                    </button>
+                    <button class="btn-skill" id="btn-skill-1" onclick="game.executeMove('p1', 'special_1')">
+                        <span>Skill 1</span>
+                        <span class="key-hint">K</span>
+                    </button>
+                    <button class="btn-skill" id="btn-skill-2" onclick="game.executeMove('p1', 'special_2')">
+                        <span>Skill 2</span>
+                        <span class="key-hint">L</span>
+                    </button>
+                    <button class="btn-skill ultimate-btn" id="btn-skill-ulti" onclick="game.executeMove('p1', 'ultimate')">
+                        <span>★ ULTIMATE</span>
+                        <span class="key-hint">U</span>
+                    </button>
+                    <button class="btn-arcade-mini" id="btn-battle-pause" onclick="game.togglePause()" title="Jeda Pertarungan (Esc / P)">⏸ PAUSE</button>
+                    <button class="btn-arcade-mini" onclick="game.showScreen('screen-title')">QUIT</button>
+                </div>
+
+                <div class="combat-log-box" id="combat-log">
+                    <div class="log-entry">> Bersiap untuk bertarung!</div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- MODAL 1: CONTROLS & HOW TO PLAY -->
+    <div class="modal-overlay" id="modal-controls">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">PANDUAN KONTROL & CARA BERMAIN</h3>
+                <button class="modal-close-btn" onclick="game.closeModal('modal-controls')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Game ini mendukung kontrol keyboard untuk 1 Player maupun 2 Player (Local Multiplayer):</p>
+                
+                <table class="controls-table">
+                    <thead>
+                        <tr>
+                            <th>Aksi Gerakan & Tempur</th>
+                            <th>Player 1 (Kiri)</th>
+                            <th>Player 2 (Kanan / PvP)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Maju (Mendekat ke Lawan)</td>
+                            <td><span class="key-tag">D</span> atau <span class="key-tag">→</span></td>
+                            <td><span class="key-tag">←</span> atau <span class="key-tag">4</span></td>
+                        </tr>
+                        <tr>
+                            <td>Mundur (Menjauh dari Lawan)</td>
+                            <td><span class="key-tag">A</span> atau <span class="key-tag">←</span></td>
+                            <td><span class="key-tag">→</span> atau <span class="key-tag">6</span></td>
+                        </tr>
+                        <tr>
+                            <td>Lompat (Jump Airborne)</td>
+                            <td><span class="key-tag">W</span>, <span class="key-tag">↑</span>, atau <span class="key-tag">Spasi</span></td>
+                            <td><span class="key-tag">↑</span> atau <span class="key-tag">8</span></td>
+                        </tr>
+                        <tr>
+                            <td>Sneak / Jongkok (Crouch)</td>
+                            <td><span class="key-tag">S</span> atau <span class="key-tag">↓</span></td>
+                            <td><span class="key-tag">↓</span> atau <span class="key-tag">5</span></td>
+                        </tr>
+                        <tr>
+                            <td>Basic Attack (Pukulan)</td>
+                            <td><span class="key-tag">J</span></td>
+                            <td><span class="key-tag">Numpad 1</span> / <span class="key-tag">1</span> / <span class="key-tag">,</span> / <span class="key-tag">I</span></td>
+                        </tr>
+                        <tr>
+                            <td>Special Skill 1</td>
+                            <td><span class="key-tag">K</span></td>
+                            <td><span class="key-tag">Numpad 2</span> / <span class="key-tag">2</span> / <span class="key-tag">.</span> / <span class="key-tag">O</span></td>
+                        </tr>
+                        <tr>
+                            <td>Special Skill 2</td>
+                            <td><span class="key-tag">L</span></td>
+                            <td><span class="key-tag">Numpad 3</span> / <span class="key-tag">3</span> / <span class="key-tag">/</span> / <span class="key-tag">P</span> / <span class="key-tag">[</span></td>
+                        </tr>
+                        <tr>
+                            <td>Ultimate Move (100% Energi)</td>
+                            <td><span class="key-tag">U</span></td>
+                            <td><span class="key-tag">Numpad 0</span> / <span class="key-tag">0</span> / <span class="key-tag">;</span> / <span class="key-tag">Enter</span> / <span class="key-tag">]</span></td>
+                        </tr>
+                        <tr>
+                            <td>📱 Android Controller (Wireless)</td>
+                            <td>Scan QR P1 (Gamepad Biru)</td>
+                            <td>Scan QR P2 (Gamepad Merah)</td>
+                        </tr>
+                        <tr>
+                            <td>Jeda / Pause Game</td>
+                            <td><span class="key-tag">ESC</span></td>
+                            <td><span class="key-tag">ESC</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Sistem Pertarungan & Mekanisme:</h3>
+                <ul>
+                    <li><strong>Akumulasi Energi:</strong> Menyerang musuh menambah +10% energi ultimate, terkena damage menambah +5%, dan special skill menambah +15%.</li>
+                    <li><strong>Mitigasi Pertahanan:</strong> Formula <code>Mitigasi = Defense / (100 + Defense)</code> mengurangi damage masuk secara matematis.</li>
+                    <li><strong>Cooldown:</strong> Special skill memiliki timer putaran cooldown sebelum dapat digunakan kembali.</li>
+                    <li><strong>Combo Counter:</strong> Serangan beruntun meningkatkan damage bonus hingga +50%!</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: OOP ARCHITECTURE & ACADEMIC DOCUMENTATION -->
+    <div class="modal-overlay" id="modal-oop">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">ARSITEKTUR PEMROGRAMAN BERORIENTASI OBJEK</h3>
+                <button class="modal-close-btn" onclick="game.closeModal('modal-oop')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Game <strong>MBG</strong> dibangun dengan mengimplementasikan prinsip-prinsip fundamental OOP PHP 8.3:</p>
+
+                <h3>1. Abstraksi (Abstraction)</h3>
+                <p>Mendefinisikan <code>abstract class Fighter</code> sebagai fondasi generik seluruh petarung dengan 15 atribut terlindungi dan method abstrak wajib <code>activatePassive()</code> serta <code>getSpecialAbilityDescription()</code>.</p>
+
+                <h3>2. Enkapsulasi (Encapsulation)</h3>
+                <p>Seluruh properti bernilai sensitif dideklarasikan sebagai <code>protected</code> atau <code>private</code>. Akses dimediasi melalui <em>getter</em> dan <em>setter</em> dengan validasi batas batas matematis (misalnya HP tidak pernah negatif dan tidak melebihi MaxHealth, energi dibatasi 0-100%).</p>
+
+                <h3>3. Pewarisan (Inheritance)</h3>
+                <p>Sebanyak 5 child class mewarisi fungsionalitas <code>Fighter</code>:</p>
+                <ul>
+                    <li><code>Bahlul extends Fighter</code>: The Goblin Summoner (Atribut: activeGoblins, etanolWaveCharge, crowdControlActive, summonerChant, totalSummonsCount).</li>
+                    <li><code>Tifuzia extends Fighter</code>: The Diploma Inspector (Atribut: inspectionRounds, diplomaVerified, noiseDecibel, academicShield, controversyStreak).</li>
+                    <li><code>BrownTeddy extends Fighter</code>: The Affection Attacker (Atribut: affectionMeter, hugsCount, fluffinessArmor, kissMultiplier, cutenessOverload).</li>
+                    <li><code>Fufufifi extends Fighter</code>: The Government Critic (Atribut: critiqueStacks, protestSupportLevel, argumentIntensity, megaphonePower, publicRallyActive).</li>
+                    <li><code>WiliWonka extends Fighter</code>: The Viral Opportunist (Atribut: trendingRank, chocolateSupply, viralViewers, fypBonusActive, stagePresence).</li>
+                </ul>
+
+                <h3>4. Polimorfisme (Polymorphism)</h3>
+                <p>Setiap child class meng-override method <code>attack()</code> untuk menyematkan efek pasif unik masing-masing. Objek dieksekusi secara polimorfis melalui abstraksi <code>FighterInterface</code> pada <code>BattleEngine</code> tanpa mengetahui tipe spesifik kelas anak saat kompilasi.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: MATCH RESULT & GAME OVER OVERLAY -->
+    <div class="modal-overlay" id="modal-game-over">
+        <div class="modal-content">
+            <div class="ko-banner">K. O. !</div>
+            <div class="winner-text" id="game-over-winner">PEMENANG: BAHLUL!</div>
+
+            <div class="stats-grid" id="game-over-stats">
+                <!-- Dynamically loaded from battle telemetry -->
+            </div>
+
+            <div class="game-over-actions">
+                <button class="btn-arcade" onclick="game.closeModal('modal-game-over'); game.showScreen('screen-char-select');">PILIH KARAKTER</button>
+                <button class="btn-arcade primary" onclick="game.closeModal('modal-game-over'); game.startBattle();">REMATCH ⚔</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: ARCADE PAUSE MENU OVERLAY -->
+    <div class="modal-overlay" id="modal-pause">
+        <div class="modal-content modal-pause-content">
+            <div class="pause-header">
+                <span class="pause-icon">⏸</span>
+                <h3 class="pause-title">GAME PAUSED</h3>
+                <div class="pause-sub">Pertarungan Sedang Dijeda</div>
+            </div>
+
+            <div class="pause-actions-list">
+                <button class="btn-arcade primary" onclick="game.togglePause()">▶ LANJUTKAN (RESUME)</button>
+                <button class="btn-arcade" onclick="game.restartBattle()">🔄 REMATCH (ULANG)</button>
+                <button class="btn-arcade" onclick="game.cycleDifficulty()">⚙ KESULITAN: <span id="pause-diff-val">NORMAL</span></button>
+                <button class="btn-arcade" onclick="game.openModal('modal-controls')">🎮 CARA BERMAIN & KONTROL</button>
+                <button class="btn-arcade danger" onclick="game.quitBattle()">🚪 KELUAR KE MENU UTAMA</button>
+            </div>
+
+            <div class="pause-footer-hint">
+                <small>Tekan <strong>[ESC]</strong> atau <strong>[P]</strong> di keyboard untuk lanjut</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 5: 2 QR CODES ANDROID WIRELESS CONTROLLERS -->
+    <div class="modal-overlay" id="modal-qr-controllers">
+        <div class="modal-content modal-qr-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📱 KONTROLER ANDROID (WIRELESS GAMEPAD)</h3>
+                <button class="modal-close" onclick="game.closeModal('modal-qr-controllers')">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="qr-footer-hint">
+                    💡 <strong>Cara Pakai:</strong> Sambungkan HP Android Anda ke <strong>Wi-Fi atau Hotspot yang sama</strong> dengan laptop ini, lalu scan QR Code di bawah menggunakan Kamera HP / Google Lens / Browser Chrome!
+                </div>
+
+                <div class="qr-ip-override-box">
+                    <span>IP Host Laptop:</span>
+                    <input type="text" id="qr-input-ip" placeholder="192.168.x.x" onchange="game.updateQrCodes(this.value)">
+                    <button class="btn-arcade-mini" onclick="game.refreshNetworkIp()">🔄 REFRESH IP</button>
+                </div>
+
+                <div class="qr-grid">
+                    <!-- PLAYER 1 QR CARD -->
+                    <div class="qr-card card-p1">
+                        <div class="qr-card-title">PLAYER 1 (BIRU)</div>
+                        <div class="qr-card-sub">Kontroler Petarung Sisi Kiri</div>
+                        <div class="qr-canvas-box" id="qrcode-box-p1"></div>
+                        <a href="#" target="_blank" class="qr-url-link" id="link-p1-qr">Memuat URL...</a>
+                        <div class="qr-status-pill waiting" id="badge-p1-conn">
+                            <span id="dot-p1-conn">🔴</span> <span id="text-p1-conn">Menunggu Scan HP P1...</span>
+                        </div>
+                    </div>
+
+                    <!-- PLAYER 2 QR CARD -->
+                    <div class="qr-card card-p2">
+                        <div class="qr-card-title">PLAYER 2 (MERAH)</div>
+                        <div class="qr-card-sub">Kontroler Petarung Sisi Kanan</div>
+                        <div class="qr-canvas-box" id="qrcode-box-p2"></div>
+                        <a href="#" target="_blank" class="qr-url-link" id="link-p2-qr">Memuat URL...</a>
+                        <div class="qr-status-pill waiting" id="badge-p2-conn">
+                            <span id="dot-p2-conn">🔴</span> <span id="text-p2-conn">Menunggu Scan HP P2...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+                    <button class="btn-arcade primary" onclick="game.closeModal('modal-qr-controllers')">MULAI PERTANDINGAN ⚔</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/qrcode.min.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/sprites.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
+

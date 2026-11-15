@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>MBG - Battle View</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background:#0a0b10;">
+    <div id="game-container">
+        <header class="arcade-header">
+            <div>
+                <div class="arcade-title"><span>⚔️ MBG: MOBILE BATTLE GOVERNMENT</span></div>
+                <div class="arcade-subtitle">UTS PBO | Teknik Informatika - Universitas Muhammadiyah Sukabumi</div>
+            </div>
+            <div class="header-controls">
+                <button class="btn-arcade-mini">CRT: ON</button>
+                <button class="btn-arcade-mini">MUTE: OFF</button>
+            </div>
+        </header>
+
+        <section class="screen active" id="screen-battle">
+            <div class="battle-hud">
+                <div class="hud-player p1">
+                    <div class="hud-player-info">
+                        <span class="hud-pbadge" style="background: var(--neon-blue); color: #000;">P1</span>
+                        <span class="hud-pname">Bahlul</span>
+                    </div>
+                    <div class="hud-bar-container">
+                        <div class="health-bar-outer">
+                            <div class="health-bar-fill" style="width: 82%;"></div>
+                            <div class="health-bar-text">945 / 1150</div>
+                        </div>
+                        <div class="energy-bar-outer">
+                            <div class="energy-bar-fill ready" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hud-center">
+                    <div class="hud-timer">84</div>
+                    <div class="hud-round">ROUND 1</div>
+                </div>
+
+                <div class="hud-player p2">
+                    <div class="hud-player-info">
+                        <span class="hud-pbadge" style="background: var(--neon-red); color: #fff;">CPU</span>
+                        <span class="hud-pname">Tifuzia</span>
+                    </div>
+                    <div class="hud-bar-container">
+                        <div class="health-bar-outer">
+                            <div class="health-bar-fill" style="width: 65%;"></div>
+                            <div class="health-bar-text">637 / 980</div>
+                        </div>
+                        <div class="energy-bar-outer">
+                            <div class="energy-bar-fill" style="width: 45%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <canvas id="battleCanvas" width="948" height="420"></canvas>
+
+            <div class="battle-bottom">
+                <div class="action-bar">
+                    <button class="btn-skill"><span>Pukul / Serang</span><span class="key-hint">J</span></button>
+                    <button class="btn-skill"><span>Tsunami Etanol</span><span class="key-hint">K</span></button>
+                    <button class="btn-skill"><span>Goblin Summon</span><span class="key-hint">L</span></button>
+                    <button class="btn-skill ultimate-btn ready"><span>★ GOBLIN APOCALYPSE</span><span class="key-hint">U</span></button>
+                </div>
+                <div class="combat-log-box">
+                    <div class="log-entry">> Pertarungan Dimulai! Bahlul VS Tifuzia di Ruang Sidang Paripurna!</div>
+                    <div class="log-entry log-crit">> CRITICAL HIT! Bahlul menghantam Tifuzia sebesar 99 damage!</div>
+                    <div class="log-entry">> Tifuzia menyerang balik dengan basic attack (57 damage).</div>
+                    <div class="log-entry log-ulti">> ★ ULTIMATE READY: Energi Goblin Apocalypse telah penuh (100%)!</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="js/audio.js"></script>
+    <script src="js/sprites.js"></script>
+    <script src="js/renderer.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('battleCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Draw arena
+            arenaRenderer.drawBackdrop(ctx, w, h, 'ruang_sidang');
+            arenaRenderer.addDamageText("CRIT! -99", 680, 360, true);
+            arenaRenderer.addSparks(680, 380, 20);
+            arenaRenderer.draw(ctx, w, h, 'ruang_sidang');
+
+            // Draw P1 (Bahlul) and P2 (Tifuzia)
+            SpriteRenderer.drawFighter(ctx, { spriteId: 'bahlul', isAlive: true }, 260, 440, 1, 'attack', 10);
+            SpriteRenderer.drawFighter(ctx, { spriteId: 'tifuzia', isAlive: true }, 680, 440, -1, 'hit', 5);
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>MBG - Controls View</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background:#0a0b10;">
+    <div id="game-container">
+        <div class="modal-overlay active" id="modal-controls" style="position:relative; width:100%; height:auto; background:none;">
+            <div class="modal-content" style="width:100%; max-width:880px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">PANDUAN KONTROL & CARA BERMAIN</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Game ini mendukung kontrol keyboard untuk 1 Player maupun 2 Player (Local Multiplayer):</p>
+                    
+                    <table class="controls-table">
+                        <thead>
+                            <tr>
+                                <th>Aksi</th>
+                                <th>Player 1 (Kiri)</th>
+                                <th>Player 2 (Kanan / PvP)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Bergerak Kiri / Kanan</td>
+                                <td><span class="key-tag">A</span> / <span class="key-tag">D</span></td>
+                                <td><span class="key-tag">←</span> / <span class="key-tag">→</span></td>
+                            </tr>
+                            <tr>
+                                <td>Basic Attack (Pukulan)</td>
+                                <td><span class="key-tag">J</span></td>
+                                <td><span class="key-tag">Numpad 1</span> / <span class="key-tag">1</span> / <span class="key-tag">I</span></td>
+                            </tr>
+                            <tr>
+                                <td>Special Skill 1</td>
+                                <td><span class="key-tag">K</span></td>
+                                <td><span class="key-tag">Numpad 2</span> / <span class="key-tag">2</span> / <span class="key-tag">O</span></td>
+                            </tr>
+                            <tr>
+                                <td>Special Skill 2</td>
+                                <td><span class="key-tag">L</span></td>
+                                <td><span class="key-tag">Numpad 3</span> / <span class="key-tag">3</span> / <span class="key-tag">P</span></td>
+                            </tr>
+                            <tr>
+                                <td>Ultimate Move (100% Energi)</td>
+                                <td><span class="key-tag">U</span></td>
+                                <td><span class="key-tag">Numpad 0</span> / <span class="key-tag">0</span> / <span class="key-tag">[</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Sistem Pertarungan & Mekanisme:</h3>
+                    <ul>
+                        <li><strong>Akumulasi Energi:</strong> Menyerang musuh menambah +10% energi ultimate, terkena damage menambah +5%, dan special skill menambah +15%.</li>
+                        <li><strong>Mitigasi Pertahanan:</strong> Formula <code>Mitigasi = Defense / (100 + Defense)</code> mengurangi damage masuk secara matematis.</li>
+                        <li><strong>Cooldown:</strong> Special skill memiliki timer putaran cooldown sebelum dapat digunakan kembali.</li>
+                        <li><strong>Combo Counter:</strong> Serangan beruntun meningkatkan damage bonus hingga +50%!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
